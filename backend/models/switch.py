@@ -13,6 +13,7 @@ class Switch(db.Model):
     ip_address = db.Column(db.String(45), unique=True)
     localizacao = db.Column(db.String(100))
     status = db.Column(db.String(20), default='ATIVO')
+    condicao = db.Column(db.String(10), default='NOVO', nullable=False)
     created_by = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at = db.Column(db.DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
@@ -27,6 +28,7 @@ class Switch(db.Model):
             "ip_address": self.ip_address,
             "localizacao": self.localizacao,
             "status": self.status,
+            "condicao": self.condicao,
             "created_by": self.created_by,
             "created_at": self.created_at,
             "updated_at": self.updated_at
