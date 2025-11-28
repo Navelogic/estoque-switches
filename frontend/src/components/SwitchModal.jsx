@@ -6,7 +6,6 @@ import {
 import switchService from '../services/switchService';
 
 const SwitchModal = ({ open, handleClose, switchData, onSaveSuccess }) => {
-  // Estado inicial do formulário
   const initialFormState = {
     patrimonio: '',
     marca: '',
@@ -14,7 +13,8 @@ const SwitchModal = ({ open, handleClose, switchData, onSaveSuccess }) => {
     serial_number: '',
     ip_address: '',
     localizacao: '',
-    status: 'ATIVO'
+    status: 'ATIVO',
+    condicao: 'USADO'
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -30,7 +30,8 @@ const SwitchModal = ({ open, handleClose, switchData, onSaveSuccess }) => {
         serial_number: switchData.serial_number || '',
         ip_address: switchData.ip_address || '',
         localizacao: switchData.localizacao || '',
-        status: switchData.status || 'ATIVO'
+        status: switchData.status || 'ATIVO',
+        condicao: switchData.condicao || 'USADO'
       });
     } else {
       setFormData(initialFormState);
@@ -38,29 +39,35 @@ const SwitchModal = ({ open, handleClose, switchData, onSaveSuccess }) => {
     setError('');
   }, [switchData, open]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+ const handleChange = (e) => {
+  const { name, value } = e.target;
+
+    setFormData(prev => {
+      let newData = { ...prev, [name]: value };
+
+      if (name === 'status' && value === 'ATIVO') {
+        newData.condicao = 'USADO';
+      }
+
+      return newData;
+    });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    try {
-      if (switchData) {
-        await switchService.update(switchData.id, formData);
-      } else {
-        await switchService.create(formData);
+const handleSubmit = async (e) => {
+      e.preventDefault();
+      setError('');
+      try {
+        if (switchData) {
+          await switchService.update(switchData.id, formData);
+        } else {
+          await switchService.create(formData);
+        }
+        onSaveSuccess();
+        handleClose();
+      } catch (err) {
+        const msg = err.response?.data?.error || "Erro ao salvar.";
+        setError(msg);
       }
-      
-      onSaveSuccess();
-      handleClose();
-      
-    } catch (err) {
-      const msg = err.response?.data?.error || "Erro ao salvar.";
-      setError(msg);
-    }
   };
 
   return (
@@ -137,7 +144,7 @@ const SwitchModal = ({ open, handleClose, switchData, onSaveSuccess }) => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={6}>
               <TextField
                 select
                 name="status"
@@ -151,6 +158,21 @@ const SwitchModal = ({ open, handleClose, switchData, onSaveSuccess }) => {
                 <MenuItem value="DESATIVADO">Desativado</MenuItem>
               </TextField>
             </Grid>
+            <Grid item xs={6}>
+                    <TextField
+                        select
+                        name="condicao"
+                        label="Condição"
+                        fullWidth
+                        value={formData.condicao}
+                        onChange={handleChange}
+                    >
+                        <MenuItem value="NOVO" disabled={formData.status === 'ATIVO'}>
+                            Novo {formData.status === 'ATIVO' ? '(Proibido se Ativo)' : ''}
+                        </MenuItem>
+                        <MenuItem value="USADO">Usado</MenuItem>
+                    </TextField>
+                </Grid>
           </Grid>
         </DialogContent>
         

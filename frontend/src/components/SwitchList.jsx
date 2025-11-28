@@ -27,6 +27,7 @@ const SwitchList = ({ switches, onEdit, onDelete }) => {
             <TableCell><strong>IP</strong></TableCell>
             <TableCell><strong>Localização</strong></TableCell>
             <TableCell><strong>Status</strong></TableCell>
+            <TableCell><strong>Condição</strong></TableCell>
             <TableCell align="right"><strong>Ações</strong></TableCell>
           </TableRow>
         </TableHead>
@@ -55,6 +56,11 @@ const SwitchList = ({ switches, onEdit, onDelete }) => {
                     variant="outlined"
                   />
                 </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color={item.condicao === 'NOVO' ? 'primary' : 'textSecondary'}>
+                    {item.condicao}
+                    </Typography>
+                  </TableCell>
                 <TableCell align="right">
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <Tooltip title="Editar">
