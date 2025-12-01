@@ -17,6 +17,7 @@ class Switch(db.Model):
     created_by = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at = db.Column(db.DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
+    image_path = db.Column(db.String(255), nullable=True)
 
     def to_dict(self):
         return {
@@ -31,5 +32,6 @@ class Switch(db.Model):
             "condicao": self.condicao,
             "created_by": self.created_by,
             "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "updated_at": self.updated_at,
+            "image_path": self.image_path
         }

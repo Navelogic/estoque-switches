@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade():
     op.execute("""
-    ALTER TABLE switches ADD COLUMN condicao VARCHAR(10) NOT NULL DEFAULT 'NOVO';
+        ALTER TABLE switches ADD COLUMN condicao VARCHAR(10) NOT NULL DEFAULT 'NOVO';
         """)
 
 
