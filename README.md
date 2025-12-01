@@ -214,18 +214,6 @@ sudo netstat -tulpn | grep -E '5000|5173'
 curl http://IP_DA_VM:5000/api/health  # Se existir endpoint de health
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
 Edite o arquivo frontend/src/services/api.js.
 Altere a baseURL para usar o IP descoberto em vez de localhost.
 ```
@@ -241,8 +229,13 @@ Nota: Certifique-se de que o firewall do Linux (ufw/iptables) permite conexões 
 ## 🏗 Modelagem de Dados
 
 Abaixo está o diagrama de classes representando as entidades principais do sistema e seus relacionamentos.
+<img src="https://raw.githubusercontent.com/Navelogic/estoque-switches/refs/heads/main/docs/diagramadeclasse.png" />
 
 ## 📸 Telas do Sistema
+<img src="https://raw.githubusercontent.com/Navelogic/estoque-switches/refs/heads/main/docs/printintegrador1.png" />
+<img src="https://raw.githubusercontent.com/Navelogic/estoque-switches/refs/heads/main/docs/printintegrador2.png" />
+<img src="https://raw.githubusercontent.com/Navelogic/estoque-switches/refs/heads/main/docs/printintegrado3.png" />
+<img src="https://raw.githubusercontent.com/Navelogic/estoque-switches/refs/heads/main/docs/printintegrador4.png" />
 
 
 ## 📖 Como Usar
