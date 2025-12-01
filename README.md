@@ -1,6 +1,6 @@
 # Sistema de Controle de Inventário de Switches
 
-Este projeto consiste em uma aplicação web Full Stack para gerenciamento de estoque de equipamentos de rede (Switches). O sistema permite o cadastro, edição, remoção e visualização de equipamentos, com controle de acesso via autenticação e registro de logs de auditoria.
+Este projeto consiste em uma aplicação web Full Stack para gerenciamento de estoque de equipamentos de rede (Switches). O sistema permite o cadastro, edição, remoção e visualização de equipamentos, incluindo upload de fotos do ativo, controle de status operacional (Ativo/Manutenção), validação de condição física e registro de logs de auditoria de acesso.
 
 O projeto foi desenvolvido como parte de um desafio técnico, visando exercitar lógica de programação, arquitetura MVC/Service Pattern e integração entre Flask e React.
 
@@ -77,7 +77,7 @@ pip install -r requirements.txt
 
 Crie um arquivo `.env` dentro da pasta `backend/` e configure a conexão com o banco. (Substitua `SUA_SENHA` pela senha do seu usuário root do MariaDB).
 
-```TOML
+```bash
 DATABASE_URL=mysql://root:SUA_SENHA@localhost/inventory_switches
 ```
 
@@ -94,7 +94,7 @@ flask db upgrade
 ```bash
 python3 app.py
 ```
-O servidor iniciará em http://127.0.0.1:5000
+O servidor iniciará em http://0.0.0.0:5000 (Acessível localmente e via rede).
 
 ### 4. Configuração do Front-end
 
@@ -110,7 +110,139 @@ Rodar a Aplicação Web
 ```bash
 npm run dev
 ```
-Acesse a aplicação no navegador em http://localhost:5173 (ou a porta indicada).
+Acesse a aplicação no navegador em http://localhost:5173.
+
+## 📱 Acesso via Rede Local (Mobile/Outros PCs)
+Para acessar o sistema através de outros dispositivos na mesma rede Wi-Fi (como celulares para testar a câmera ou tablets), é necessário configurar o IP da máquina servidora.
+
+1. Descubra o IP da sua máquina:
+    * No terminal Linux, execute:
+    ```bash
+    ip addr show | grep "inet " | grep -v 127.0.0.1
+    ```
+    Procure um endereço como `192.168.0.X` ou `192.168.1.X` (geralmente na interface `wlan0` ou `eth0`).
+
+2. Configurar o Front-end para Usar o IP:
+    * Edite o arquivo frontend/src/services/api.js:
+    ```javascript
+    import axios from 'axios';
+    
+    const api = axios.create({
+        // Substitua 192.168.0.14 pelo IP da sua máquina
+        baseURL: 'http://192.168.0.14:5000/api',
+        headers: {
+            'Content-Type': 'application/json',
+            },
+        });
+        
+        export default api;
+    ```
+
+3. Configurar o Firewall (se necessário):
+```bash
+# Permitir tráfego nas portas 5000 e 5173
+sudo ufw allow 5000/tcp
+sudo ufw allow 5173/tcp
+
+# Verificar status
+sudo ufw status
+```
+
+## 🖥️ Acesso ao Projeto em Máquina Virtual
+Se o projeto está rodando dentro de uma máquina virtual (VirtualBox, VMware, Hyper-V, etc.), siga estas configurações adicionais:
+
+### Configuração de Rede da VM
+### Opção 1: Rede em Modo Bridge (Recomendado)
+Esta opção faz a VM aparecer como um dispositivo independente na rede local.
+
+##### VirtualBox:
+1. Acesse Configurações → Rede
+2. Altere Conectado a: para Placa em modo Bridge
+3. Selecione sua interface de rede física (Wi-Fi ou Ethernet)
+4. Reinicie a VM
+
+##### VMware:
+1. Vá em VM → Settings → Network Adapter
+2. Selecione Bridged: Connected directly to the physical network
+3. Reinicie a VM
+
+Após configurar:
+```bash
+# Dentro da VM, descubra o novo IP
+ip addr show | grep "inet " | grep -v 127.0.0.1
+```
+A VM terá um IP na mesma faixa da rede local (ex: 192.168.0.25). Use este IP para acessar de qualquer dispositivo na rede.
+
+#### Opção 2: Port Forwarding (NAT)
+Se não puder usar Bridge, configure redirecionamento de portas.
+
+##### VirtualBox:
+1. Acesse Configurações → Rede → Avançado → Redirecionamento de Portas
+2. Adicione as regras:
+
+| Protocolo | Hospedeiro Porta | Hospedeiro IP | Convidado Porta | Convidado         |
+|-----------|------------------|---------------|-----------------|-------------------|
+| TCP       | 127.0.0.1:5000   | 10.0.2.15     | 5000            | Flask API         |
+| TCP       | 127.0.0.1:5173   | 10.0.2.15     | 5173            | React Dev         |
+
+3. Clique em OK
+
+
+### Configuração no Frontend:
+Edite `frontend/src/services/api.js` para usar `localhost`:
+```javascript
+baseURL: 'http://localhost:5000/api',
+```
+## Acessar:
+Na máquina host: http://localhost:5173
+Em outros dispositivos: Use o IP da máquina host (não da VM)
+
+#### Opção 3: Rede Host-Only + NAT (Híbrido)
+Para acesso tanto do host quanto de outros dispositivos:
+
+#### VirtualBox:
+1. Configure Adaptador 1 como NAT (para internet)
+2. Configure Adaptador 2 como Placa Host-Only
+3. Dentro da VM, configure a segunda interface para obter IP via DHCP
+
+Verificando a Conectividade
+```bash
+# Na VM, verificar se as portas estão abertas
+sudo netstat -tulpn | grep -E '5000|5173'
+
+# Do host ou outro dispositivo, testar conexão
+curl http://IP_DA_VM:5000/api/health  # Se existir endpoint de health
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+Edite o arquivo frontend/src/services/api.js.
+Altere a baseURL para usar o IP descoberto em vez de localhost.
+```
+// Exemplo se seu IP for 192.168.0.14
+baseURL: '[http://192.168.0.14:5000/api](http://192.168.0.14:5000/api)', 
+```
+
+Acesse pelo dispositivo:
+No navegador do celular, digite o IP da máquina e a porta do frontend: http://192.168.0.14:5173.
+
+Nota: Certifique-se de que o firewall do Linux (ufw/iptables) permite conexões nas portas 5000 e 5173.
+
+## 🏗 Modelagem de Dados
+
+Abaixo está o diagrama de classes representando as entidades principais do sistema e seus relacionamentos.
+
+## 📸 Telas do Sistema
 
 
 ## 📖 Como Usar
