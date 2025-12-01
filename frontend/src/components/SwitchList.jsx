@@ -1,9 +1,10 @@
 import { 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, 
-  IconButton, Chip, Typography, Tooltip, Box 
+  IconButton, Chip, Typography, Tooltip, Box, Avatar 
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 
 const SwitchList = ({ switches, onEdit, onDelete }) => {
 
@@ -17,10 +18,11 @@ const SwitchList = ({ switches, onEdit, onDelete }) => {
   };
 
   return (
-    <TableContainer component={Paper} sx={{ mt: 2 }}>
+    <TableContainer component={Paper} elevation={2} sx={{ mt: 2, borderRadius: 2, overflow: 'hidden' }}>
       <Table sx={{ minWidth: 650 }} aria-label="tabela de switches">
-        <TableHead>
-          <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+        <TableHead sx={{ backgroundColor: '#eeeeee' }}>
+          <TableRow>
+            <TableCell><strong>Foto</strong></TableCell>
             <TableCell><strong>Património</strong></TableCell>
             <TableCell><strong>Marca/Modelo</strong></TableCell>
             <TableCell><strong>Serial</strong></TableCell>
@@ -34,18 +36,31 @@ const SwitchList = ({ switches, onEdit, onDelete }) => {
         <TableBody>
           {switches.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} align="center">
-                <Typography sx={{ py: 3, color: 'text.secondary' }}>
-                  Nenhum equipamento encontrado.
+              <TableCell colSpan={9} align="center">
+                <Typography sx={{ py: 4, color: 'text.secondary', fontStyle: 'italic' }}>
+                  Nenhum equipamento encontrado no sistema.
                 </Typography>
               </TableCell>
             </TableRow>
           ) : (
             switches.map((item) => (
-              <TableRow key={item.id} hover>
-                <TableCell>{item.patrimonio}</TableCell>
-                <TableCell>{item.marca} {item.modelo}</TableCell>
-                <TableCell>{item.serial_number}</TableCell>
+              <TableRow key={item.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: '0.2s' }}>
+                <TableCell>
+                    {item.image_path ? (
+                         <Avatar 
+                            src={`http://127.0.0.1:5000/static/uploads/${item.image_path}`} 
+                            variant="rounded"
+                            sx={{ width: 40, height: 40, border: '1px solid #ddd' }}
+                         />
+                    ) : (
+                        <Avatar variant="rounded" sx={{ width: 40, height: 40, bgcolor: 'transparent', border: '1px solid #ddd' }}>
+                            <ImageNotSupportedIcon color="disabled" />
+                        </Avatar>
+                    )}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 500 }}>{item.patrimonio}</TableCell>
+                <TableCell>{item.marca} <Typography variant="caption" display="block" color="textSecondary">{item.modelo}</Typography></TableCell>
+                <TableCell sx={{ fontFamily: 'monospace' }}>{item.serial_number}</TableCell>
                 <TableCell>{item.ip_address || '-'}</TableCell>
                 <TableCell>{item.localizacao || '-'}</TableCell>
                 <TableCell>
@@ -53,24 +68,25 @@ const SwitchList = ({ switches, onEdit, onDelete }) => {
                     label={item.status} 
                     color={getStatusColor(item.status)} 
                     size="small" 
-                    variant="outlined"
+                    variant="filled" // Mudado para filled para mais contraste
+                    sx={{ fontWeight: 'bold' }}
                   />
                 </TableCell>
                 <TableCell>
-                  <Typography variant="body2" color={item.condicao === 'NOVO' ? 'primary' : 'textSecondary'}>
+                  <Typography variant="body2" sx={{ fontWeight: item.condicao === 'NOVO' ? 'bold' : 'normal', color: item.condicao === 'NOVO' ? '#1976d2' : 'text.secondary' }}>
                     {item.condicao}
-                    </Typography>
-                  </TableCell>
+                  </Typography>
+                </TableCell>
                 <TableCell align="right">
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                     <Tooltip title="Editar">
-                      <IconButton color="primary" onClick={() => onEdit(item)} size="small">
-                        <EditIcon />
+                      <IconButton color="primary" onClick={() => onEdit(item)} size="small" sx={{ bgcolor: 'rgba(25, 118, 210, 0.05)' }}>
+                        <EditIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Excluir">
-                      <IconButton color="error" onClick={() => onDelete(item.id)} size="small">
-                        <DeleteIcon />
+                      <IconButton color="error" onClick={() => onDelete(item.id)} size="small" sx={{ bgcolor: 'rgba(211, 47, 47, 0.05)' }}>
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                   </Box>
