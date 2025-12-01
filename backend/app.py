@@ -14,6 +14,10 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static', 'uploads')
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
     db.init_app(app)
     migrate.init_app(app, db)
     CORS(app)
